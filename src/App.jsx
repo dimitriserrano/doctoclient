@@ -19,6 +19,7 @@ console.log(import.meta.env.VITE_MESSAGING_SENDER_ID)
 console.log(import.meta.env.VITE_APP_ID)
 console.log(import.meta.env.VITE_MEASUREMENT_ID)
 
+
 const firebaseConfig = {
   apiKey: "AIzaSyAWcMBxauiMe5HYOogZRTTIMPZOHW0HlAQ",
   authDomain: "doctoliblike-e9e89.firebaseapp.com",
@@ -42,6 +43,33 @@ function App() {
   }
   const handleChangePassword = (e) => {
     setPassword(e.target.value)
+  }
+
+  let deferredPrompt = null;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+      //if app can be installed, assign the event to deferred prompt variable
+      deferredPrompt = e;
+  });
+
+  window.addEventListener('load', () => {
+    //select the button with ID pwaAppInstallBtn
+    const pwaAppInstallBtn = document.querySelector('#pwaAppInstallBtn');
+    pwaAppInstallBtn.addEventListener('click', async () => {
+        if (deferredPrompt !== null) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                deferredPrompt = null;
+            }
+        } else {
+            console.log("deferred prompt is null [Website cannot be installed]")
+        }
+    });
+})
+
+  const calendar = () => {
+    window.open( "data:text/calendar;charset=utf8," +escape("BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Our Company//NONSGML v1.0//EN\nBEGIN:VEVENT\nUID:me@google.com\nDTSTAMP:20120315T170000Z\nATTENDEE;CN=My Self ;RSVP=TRUE:MAILTO:me@gmail.com\nORGANIZER;CN=Me:MAILTO::me@gmail.com\nSUMMARY:Our Meeting Office\nEND:VEVENT\nEND:VCALENDAR"));
   }
 
   const login = () => {
@@ -85,6 +113,7 @@ function App() {
   return (
     <div>
       <h1>Connexion</h1>
+      <a HREF="mailto:envoiemail@mail.com">envoyer un mail</a>
       <div>
         <label htmlFor="email"></label>
         <input 
@@ -105,6 +134,9 @@ function App() {
       <p></p>
       <button onClick={() => login()}>Se connecter</button>
       <button onClick={() => logout()}>Se déconnecter</button>
+      <p></p>
+      <button onClick={() => calendar()}>Event calendar</button>
+      <button onClick={() => install()}>installer</button>
     </div>
   )
 }
